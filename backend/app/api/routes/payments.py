@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.payment import PaymentCreate, PaymentMarkPaid, PaymentRead
+from app.schemas.payment import PaymentCreate, PaymentMarkPaid, PaymentPaidResponse, PaymentRead
 from app.services.payment_service import create_payment, list_payments, mark_payment_paid
 
 router = APIRouter()
@@ -30,9 +30,9 @@ def add_payment(payload: PaymentCreate, db: Session = Depends(get_db)):
     return serialize_payment(payment)
 
 
-@router.post("/{payment_id}/mark-paid", response_model=PaymentRead)
+@router.post("/{payment_id}/mark-paid", response_model=PaymentPaidResponse)
 def pay_payment(payment_id: int, payload: PaymentMarkPaid, db: Session = Depends(get_db)):
-    payment = mark_payment_paid(db, payment_id, payload)
+    payment, already_paid = mark_payment_paid(db, payment_id, payload)
     if not payment:
         raise HTTPException(status_code=404, detail="账单不存在")
-    return serialize_payment(payment)
+    return PaymentPaidResponse(payment=serialize_payment(payment), already_paid=already_paid)

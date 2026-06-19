@@ -8,12 +8,14 @@
     <PaymentsView v-else-if="activeView === 'payments'" />
     <RemindersView v-else />
   </main>
+  <ToastContainer />
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import NavigationTabs from './components/NavigationTabs.vue'
+import ToastContainer from './components/ToastContainer.vue'
 import ContractsView from './views/ContractsView.vue'
 import DashboardView from './views/DashboardView.vue'
 import PaymentsView from './views/PaymentsView.vue'

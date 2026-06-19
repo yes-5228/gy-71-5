@@ -31,10 +31,12 @@ def create_payment(db: Session, payload: PaymentCreate) -> Payment:
     return payment
 
 
-def mark_payment_paid(db: Session, payment_id: int, payload: PaymentMarkPaid) -> Payment | None:
+def mark_payment_paid(db: Session, payment_id: int, payload: PaymentMarkPaid) -> tuple[Payment | None, bool]:
     payment = db.get(Payment, payment_id)
     if not payment:
-        return None
+        return None, False
+    if payment.status == "paid":
+        return payment, True
     payment.status = "paid"
     payment.paid_at = datetime.utcnow()
     payment.method = payload.method
@@ -42,7 +44,7 @@ def mark_payment_paid(db: Session, payment_id: int, payload: PaymentMarkPaid) ->
         payment.note = payload.note
     db.commit()
     db.refresh(payment)
-    return payment
+    return payment, False
 
 
 def overdue_payments(db: Session) -> list[Payment]:

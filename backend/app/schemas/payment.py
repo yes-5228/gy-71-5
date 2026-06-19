@@ -29,3 +29,8 @@ class PaymentRead(PaymentBase):
     contract_no: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class PaymentPaidResponse(BaseModel):
+    payment: PaymentRead
+    already_paid: bool = False

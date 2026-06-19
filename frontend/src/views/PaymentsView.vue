@@ -46,8 +46,15 @@
             <td>{{ payment.due_date }}</td>
             <td><StatusBadge :value="payment.status" /></td>
             <td>
-              <button v-if="payment.status !== 'paid'" type="button" class="small-button" @click="pay(payment.id)">
-                确认收款
+              <button
+                v-if="payment.status !== 'paid'"
+                type="button"
+                class="small-button"
+                :disabled="pendingIds.has(payment.id)"
+                :class="{ 'button-loading': pendingIds.has(payment.id) }"
+                @click="pay(payment)"
+              >
+                {{ pendingIds.has(payment.id) ? '确认中...' : '确认收款' }}
               </button>
               <span v-else>{{ payment.method || '已入账' }}</span>
             </td>
@@ -64,12 +71,14 @@ import { fetchContracts } from '../api/contracts'
 import { createPayment, fetchPayments, markPaymentPaid } from '../api/payments'
 import SectionToolbar from '../components/SectionToolbar.vue'
 import StatusBadge from '../components/StatusBadge.vue'
+import { notify } from '../utils/notify'
 import { currency, todayISO } from '../utils/formatters'
 
 const payments = ref([])
 const activeContracts = ref([])
 const statusFilter = ref('')
 const error = ref('')
+const pendingIds = reactive(new Set())
 const form = reactive({
   contract_id: '',
   period: todayISO().slice(0, 7),
@@ -94,6 +103,7 @@ async function loadPayments() {
     payments.value = await fetchPayments(statusFilter.value)
   } catch (err) {
     error.value = err.message
+    notify.error(err.message)
   }
 }
 
@@ -114,21 +124,54 @@ async function submit() {
   try {
     await createPayment({ ...form, contract_id: Number(form.contract_id) })
     Object.assign(form, { contract_id: '', period: todayISO().slice(0, 7), amount: 0, due_date: todayISO(), note: '' })
+    notify.success('账单创建成功')
     await loadPayments()
   } catch (err) {
     error.value = err.message
+    notify.error(err.message)
   }
 }
 
-async function pay(id) {
+async function pay(payment) {
+  const id = payment.id
+  if (pendingIds.has(id)) {
+    notify.warning('正在确认收款中，请稍候...')
+    return
+  }
+  if (payment.status === 'paid') {
+    notify.warning('该账单已收款，无需重复操作')
+    return
+  }
   error.value = ''
+  pendingIds.add(id)
   try {
-    await markPaymentPaid(id, { method: 'bank_transfer', note: '前台确认收款' })
+    const result = await markPaymentPaid(id, { method: 'bank_transfer', note: '前台确认收款' })
     await loadPayments()
+    if (result.already_paid) {
+      notify.warning('该账单已收款，状态已更新')
+    } else {
+      notify.success(`收款成功：${payment.tenant_name} - ${currency(payment.amount)}`)
+    }
   } catch (err) {
     error.value = err.message
+    notify.error(`收款失败：${err.message}`)
+  } finally {
+    pendingIds.delete(id)
   }
 }
 
 onMounted(load)
 </script>
+
+<style scoped>
+.button-loading {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+}
+
+.small-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  background: #f0f0f0;
+}
+</style>
