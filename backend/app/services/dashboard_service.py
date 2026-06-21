@@ -31,6 +31,9 @@ def get_dashboard_stats(db: Session) -> DashboardStats:
     overdue_amount = db.scalar(
         select(func.coalesce(func.sum(Payment.amount), 0)).where(Payment.status == "overdue")
     ) or 0
+    paid_amount = db.scalar(
+        select(func.coalesce(func.sum(Payment.amount), 0)).where(Payment.status == "paid")
+    ) or 0
     expiring_contracts = db.scalar(
         select(func.count())
         .select_from(Contract)
@@ -44,5 +47,6 @@ def get_dashboard_stats(db: Session) -> DashboardStats:
         active_contracts=active_contracts,
         unpaid_amount=float(unpaid_amount),
         overdue_amount=float(overdue_amount),
+        paid_amount=float(paid_amount),
         expiring_contracts=expiring_contracts,
     )

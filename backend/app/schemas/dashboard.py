@@ -8,4 +8,5 @@ class DashboardStats(BaseModel):
     active_contracts: int
     unpaid_amount: float
     overdue_amount: float
+    paid_amount: float
     expiring_contracts: int

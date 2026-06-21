@@ -144,6 +144,10 @@ button {
   color: #8a5a00;
 }
 
+.stat-card.success strong {
+  color: #1b6b35;
+}
+
 .stat-card.danger strong,
 .danger-line strong {
   color: #b42318;

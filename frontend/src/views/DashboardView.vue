@@ -24,6 +24,10 @@
         <span>待收金额</span>
         <strong>{{ currency(appStore.dashboardStats.unpaid_amount) }}</strong>
       </button>
+      <button type="button" class="stat-card success" @click="$emit('navigate', 'payments')">
+        <span>已收金额</span>
+        <strong>{{ currency(appStore.dashboardStats.paid_amount) }}</strong>
+      </button>
       <button type="button" class="stat-card danger" @click="$emit('navigate', 'reminders')">
         <span>逾期金额</span>
         <strong>{{ currency(appStore.dashboardStats.overdue_amount) }}</strong>
