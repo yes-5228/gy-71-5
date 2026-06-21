@@ -163,6 +163,25 @@ button {
   padding: 8px 16px;
 }
 
+.stats-empty {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px dashed #cfd8e3;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  min-height: 200px;
+  padding: 24px;
+  text-align: center;
+}
+
+.stats-empty p {
+  color: #607080;
+  margin: 0;
+}
+
 .stat-card {
   align-items: flex-start;
   background: #f8fafc;

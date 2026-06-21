@@ -126,7 +126,11 @@ async function submit() {
     await createPayment({ ...form, contract_id: Number(form.contract_id) })
     Object.assign(form, { contract_id: '', period: todayISO().slice(0, 7), amount: 0, due_date: todayISO(), note: '' })
     notify.success('账单创建成功')
-    await Promise.all([loadPayments(), refreshDashboardStats(true)])
+    try {
+      await Promise.all([loadPayments(), refreshDashboardStats(true)])
+    } catch (refreshErr) {
+      notify.warning('账单创建成功，但看板数据刷新失败，显示的可能是旧数据')
+    }
   } catch (err) {
     error.value = err.message
     notify.error(err.message)
@@ -147,7 +151,11 @@ async function pay(payment) {
   pendingIds.add(id)
   try {
     const result = await markPaymentPaid(id, { method: 'bank_transfer', note: '前台确认收款' })
-    await Promise.all([loadPayments(), refreshDashboardStats(true)])
+    try {
+      await Promise.all([loadPayments(), refreshDashboardStats(true)])
+    } catch (refreshErr) {
+      notify.warning('收款成功，但看板数据刷新失败，显示的可能是旧数据')
+    }
     if (result.already_paid) {
       notify.warning('该账单已收款，状态已更新')
     } else {

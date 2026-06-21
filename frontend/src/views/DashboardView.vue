@@ -6,7 +6,14 @@
       </button>
     </SectionToolbar>
 
-    <p v-if="appStore.dashboardError" class="error">{{ appStore.dashboardError }}</p>
+    <div v-if="!appStore.dashboardStats && !appStore.dashboardLoading" class="stats-empty">
+      <p>暂无数据，请点击右上角"刷新"按钮加载</p>
+      <button v-if="appStore.dashboardError" type="button" class="ghost-button" @click="refreshDashboardStats(true)">
+        重试加载
+      </button>
+    </div>
+
+    <p v-if="appStore.dashboardError && appStore.dashboardStats" class="error">{{ appStore.dashboardError }}（显示的为上次加载的数据）</p>
     <div v-if="appStore.dashboardStats">
       <div class="stats-grid">
         <button type="button" class="stat-card" @click="$emit('navigate', 'workstations')">
@@ -26,7 +33,7 @@
           <strong>{{ appStore.dashboardStats.expiring_contracts }}</strong>
         </button>
       </div>
-      <div class="stats-amounts-wrap" :class="{ 'is-loading': appStore.dashboardLoading }">
+      <div class="stats-amounts-wrap" :class="{ 'is-loading': appStore.dashboardLoading, 'is-error': appStore.dashboardError }">
         <div class="stats-grid stats-amounts-group">
           <button type="button" class="stat-card warning" @click="$emit('navigate', 'payments')">
             <span class="stat-card-label">待收金额</span>
@@ -50,12 +57,22 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import SectionToolbar from '../components/SectionToolbar.vue'
 import { appStore, refreshDashboardStats } from '../utils/store'
+import { notify } from '../utils/notify'
 import { currency } from '../utils/formatters'
 
 defineEmits(['navigate'])
+
+watch(
+  () => appStore.dashboardError,
+  (err, prev) => {
+    if (err && err !== prev) {
+      notify.error(`看板刷新失败：${err}`)
+    }
+  }
+)
 
 onMounted(() => {
   if (!appStore.dashboardStats) {
