@@ -123,6 +123,11 @@ button {
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
 }
 
+.stats-amounts-group {
+  margin-top: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
 .stat-card {
   align-items: flex-start;
   background: #f8fafc;
