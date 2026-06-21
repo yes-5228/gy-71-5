@@ -1,58 +1,52 @@
 <template>
   <section class="panel">
     <SectionToolbar eyebrow="Dashboard" title="运营看板">
-      <button type="button" class="ghost-button" @click="load">刷新</button>
+      <button type="button" class="ghost-button" :disabled="appStore.dashboardLoading" @click="refreshDashboardStats(true)">
+        {{ appStore.dashboardLoading ? '刷新中...' : '刷新' }}
+      </button>
     </SectionToolbar>
 
-    <p v-if="error" class="error">{{ error }}</p>
-    <div v-if="stats" class="stats-grid">
+    <p v-if="appStore.dashboardError" class="error">{{ appStore.dashboardError }}</p>
+    <div v-if="appStore.dashboardStats" class="stats-grid">
       <button type="button" class="stat-card" @click="$emit('navigate', 'workstations')">
         <span>总工位</span>
-        <strong>{{ stats.total_workstations }}</strong>
+        <strong>{{ appStore.dashboardStats.total_workstations }}</strong>
       </button>
       <button type="button" class="stat-card" @click="$emit('navigate', 'workstations')">
         <span>可租工位</span>
-        <strong>{{ stats.available_workstations }}</strong>
+        <strong>{{ appStore.dashboardStats.available_workstations }}</strong>
       </button>
       <button type="button" class="stat-card" @click="$emit('navigate', 'contracts')">
         <span>履行合同</span>
-        <strong>{{ stats.active_contracts }}</strong>
+        <strong>{{ appStore.dashboardStats.active_contracts }}</strong>
       </button>
       <button type="button" class="stat-card warning" @click="$emit('navigate', 'payments')">
         <span>待收金额</span>
-        <strong>{{ currency(stats.unpaid_amount) }}</strong>
+        <strong>{{ currency(appStore.dashboardStats.unpaid_amount) }}</strong>
       </button>
       <button type="button" class="stat-card danger" @click="$emit('navigate', 'reminders')">
         <span>逾期金额</span>
-        <strong>{{ currency(stats.overdue_amount) }}</strong>
+        <strong>{{ currency(appStore.dashboardStats.overdue_amount) }}</strong>
       </button>
       <button type="button" class="stat-card" @click="$emit('navigate', 'reminders')">
         <span>30天到期</span>
-        <strong>{{ stats.expiring_contracts }}</strong>
+        <strong>{{ appStore.dashboardStats.expiring_contracts }}</strong>
       </button>
     </div>
   </section>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { fetchDashboardStats } from '../api/dashboard'
+import { onMounted } from 'vue'
 import SectionToolbar from '../components/SectionToolbar.vue'
+import { appStore, refreshDashboardStats } from '../utils/store'
 import { currency } from '../utils/formatters'
 
 defineEmits(['navigate'])
 
-const stats = ref(null)
-const error = ref('')
-
-async function load() {
-  error.value = ''
-  try {
-    stats.value = await fetchDashboardStats()
-  } catch (err) {
-    error.value = err.message
+onMounted(() => {
+  if (!appStore.dashboardStats) {
+    refreshDashboardStats()
   }
-}
-
-onMounted(load)
+})
 </script>

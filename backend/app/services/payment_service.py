@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.contract import Contract
@@ -37,14 +37,19 @@ def mark_payment_paid(db: Session, payment_id: int, payload: PaymentMarkPaid) ->
         return None, False
     if payment.status == "paid":
         return payment, True
-    payment.status = "paid"
-    payment.paid_at = datetime.utcnow()
-    payment.method = payload.method
+    update_values = {"status": "paid", "paid_at": datetime.utcnow(), "method": payload.method}
     if payload.note is not None:
-        payment.note = payload.note
+        update_values["note"] = payload.note
+    result = db.execute(
+        update(Payment)
+        .where(Payment.id == payment_id, Payment.status != "paid")
+        .values(**update_values)
+    )
     db.commit()
+    affected_rows = result.rowcount
     db.refresh(payment)
-    return payment, False
+    already_paid = affected_rows == 0
+    return payment, already_paid
 
 
 def overdue_payments(db: Session) -> list[Payment]:

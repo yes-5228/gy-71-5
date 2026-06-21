@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import NavigationTabs from './components/NavigationTabs.vue'
 import ToastContainer from './components/ToastContainer.vue'
@@ -21,6 +21,7 @@ import DashboardView from './views/DashboardView.vue'
 import PaymentsView from './views/PaymentsView.vue'
 import RemindersView from './views/RemindersView.vue'
 import WorkstationsView from './views/WorkstationsView.vue'
+import { refreshDashboardStats } from './utils/store'
 
 const activeView = ref('dashboard')
 const tabs = [
@@ -30,4 +31,8 @@ const tabs = [
   { key: 'payments', label: '费用收缴' },
   { key: 'reminders', label: '到期提醒' }
 ]
+
+onMounted(() => {
+  refreshDashboardStats()
+})
 </script>
