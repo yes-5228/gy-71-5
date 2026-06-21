@@ -123,9 +123,44 @@ button {
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
 }
 
-.stats-amounts-group {
+.stats-amounts-wrap {
+  position: relative;
   margin-top: 18px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.stats-amounts-group {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.stat-card-label {
+  white-space: nowrap;
+}
+
+.stat-card-number {
+  white-space: nowrap;
+}
+
+.stats-amounts-overlay {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+}
+
+.stats-loading-text {
+  background: #ffffff;
+  border: 1px solid #d9e0e7;
+  border-radius: 6px;
+  color: #52616f;
+  font-size: 14px;
+  padding: 8px 16px;
 }
 
 .stat-card {
@@ -279,5 +314,22 @@ td small {
 
   .tabs button {
     white-space: nowrap;
+  }
+
+  .stats-amounts-group .stat-card {
+    gap: 6px;
+    min-height: 88px;
+    padding: 12px 10px;
+  }
+
+  .stats-amounts-group .stat-card-label {
+    font-size: 12px;
+  }
+
+  .stats-amounts-group .stat-card-number {
+    font-size: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
 }

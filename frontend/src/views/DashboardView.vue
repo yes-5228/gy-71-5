@@ -26,19 +26,24 @@
           <strong>{{ appStore.dashboardStats.expiring_contracts }}</strong>
         </button>
       </div>
-      <div class="stats-grid stats-amounts-group">
-        <button type="button" class="stat-card warning" @click="$emit('navigate', 'payments')">
-          <span>待收金额</span>
-          <strong>{{ currency(appStore.dashboardStats.unpaid_amount) }}</strong>
-        </button>
-        <button type="button" class="stat-card success" @click="$emit('navigate', 'payments')">
-          <span>已收金额</span>
-          <strong>{{ currency(appStore.dashboardStats.paid_amount) }}</strong>
-        </button>
-        <button type="button" class="stat-card danger" @click="$emit('navigate', 'reminders')">
-          <span>逾期金额</span>
-          <strong>{{ currency(appStore.dashboardStats.overdue_amount) }}</strong>
-        </button>
+      <div class="stats-amounts-wrap" :class="{ 'is-loading': appStore.dashboardLoading }">
+        <div class="stats-grid stats-amounts-group">
+          <button type="button" class="stat-card warning" @click="$emit('navigate', 'payments')">
+            <span class="stat-card-label">待收金额</span>
+            <strong class="stat-card-number">{{ currency(appStore.dashboardStats.unpaid_amount) }}</strong>
+          </button>
+          <button type="button" class="stat-card success" @click="$emit('navigate', 'payments')">
+            <span class="stat-card-label">已收金额</span>
+            <strong class="stat-card-number">{{ currency(appStore.dashboardStats.paid_amount) }}</strong>
+          </button>
+          <button type="button" class="stat-card danger" @click="$emit('navigate', 'reminders')">
+            <span class="stat-card-label">逾期金额</span>
+            <strong class="stat-card-number">{{ currency(appStore.dashboardStats.overdue_amount) }}</strong>
+          </button>
+        </div>
+        <div v-if="appStore.dashboardLoading" class="stats-amounts-overlay">
+          <span class="stats-loading-text">更新中...</span>
+        </div>
       </div>
     </div>
   </section>
